@@ -1,0 +1,172 @@
+type: edu
+custom_name: stage2
+files:
+- name: test/CoffeeMachineTest.java
+  visible: false
+  text: |
+    import machine.CoffeeMachine;
+    import org.hyperskill.hstest.v6.stage.BaseStageTest;
+    import org.hyperskill.hstest.v6.testcase.CheckResult;
+    import org.hyperskill.hstest.v6.testcase.TestCase;
+
+    import java.util.List;
+
+
+    public class CoffeeMachineTest extends BaseStageTest<String> {
+
+        public CoffeeMachineTest() {
+            super(CoffeeMachine.class);
+        }
+
+        @Override
+        public List<TestCase<String>> generate() {
+            return List.of(
+                new TestCase<String>()
+                    .setInput("25")
+                    .setAttach("25"),
+
+                new TestCase<String>()
+                    .setInput("125")
+                    .setAttach("125"),
+
+                new TestCase<String>()
+                    .setInput("1")
+                    .setAttach("1"),
+
+                new TestCase<String>()
+                    .setInput("123")
+                    .setAttach("123")
+            );
+        }
+
+        @Override
+        public CheckResult check(String reply, String clue) {
+            String[] lines = reply.split("\\n");
+            if (lines.length < 3) {
+                return new CheckResult(false,
+                    "Output contains less than 3 lines, but should output at least 3 lines");
+            }
+            String[] last3Lines = {
+                lines[lines.length - 3],
+                lines[lines.length - 2],
+                lines[lines.length - 1]
+            };
+
+            int cups = Integer.parseInt(clue);
+            boolean water = false, milk = false, beans = false;
+
+            for(String line : last3Lines) {
+                line = line.toLowerCase();
+
+                if(line.contains("milk")) {
+                    milk = line.contains(Integer.toString(cups * 50));
+                    if (!milk) {
+                        return new CheckResult(false,
+                            "For the input " + clue + " your program output:\n\"" +
+                                line + "\"\nbut the amount of milk should be " + (cups * 50));
+                    }
+
+                } else if(line.contains("water")) {
+                    water = line.contains(Integer.toString(cups * 200));
+                    if (!water) {
+                        return new CheckResult(false,
+                            "For the input " + clue + " your program output:\n" +
+                                line + "\nbut the amount of water should be " + (cups * 200));
+                    }
+
+                } else if(line.contains("beans")) {
+                    beans = line.contains(Integer.toString(cups * 15));
+                    if (!beans) {
+                        return new CheckResult(false,
+                            "For the input " + clue + " your program output:\n" +
+                                line + "\nbut the amount of beans should be " + (cups * 15));
+                    }
+
+
+                } else {
+                    return new CheckResult(false,
+                        "One of the last 3 lines " +
+                            "doesn't contain \"milk\", \"water\" or \"beans\"");
+                }
+            }
+
+            if (!water) {
+                return new CheckResult(false,
+                    "There is no line with amount of water");
+            }
+
+            if (!milk) {
+                return new CheckResult(false,
+                    "There is no line with amount of milk");
+            }
+
+            if (!beans) {
+                return new CheckResult(false,
+                    "There is no line with amount of coffee beans");
+            }
+
+            return CheckResult.TRUE;
+        }
+    }
+  learner_created: false
+- name: src/machine/CoffeeMachine.java
+  visible: true
+  text: |+
+    package machine;
+    import java.util.Scanner;
+
+    public class CoffeeMachine {
+        //200 ml of water, 50 ml of milk, and 15 g of coffee beans.
+        public static void main(String[] args) {
+            Scanner input = new Scanner(System.in);
+            System.out.println("Write how many ml of water the coffee machine has:");
+            int haveWater = input.nextInt();
+            System.out.println("Write how many ml of milk the coffee machine has:");
+            int haveMilk = input.nextInt();
+            System.out.println("Write how many grams of coffee beans the coffee machine has:");
+            int haveBeans = input.nextInt();
+            System.out.println("Write how many cups of coffee you will need:");
+            int cups = input.nextInt();
+            int water =  200 * cups;
+            int milk = 50 * cups;
+            int beans = 15 * cups;
+
+            if (haveWater >= water){
+                int w =  Math.round(haveWater/water);
+                if (w >= 0){
+                    if (haveMilk >= milk){
+                        int m =  Math.round(haveMilk/milk);
+                        if (m >= 0){
+                            if (haveBeans >= beans){
+                                int b = Math.round(haveBeans/beans);
+                                int coffee = 0;
+                                while (w > 0 && m > 0 && b > 0){
+                                    --w;
+                                    --m;
+                                    --b;
+                                    ++coffee;
+                                }
+                                if (coffee >= 0){
+                                    if (coffee >= cups){
+                                        System.out.println("Yes, I can make that amount of coffee (and even "+ (coffee-1) +" more than that)");
+                                    }else if (coffee == cups){
+                                        System.out.println("Yes, I can make that amount of coffee");
+                                    }else if (coffee<= cups){
+                                        System.out.println("No, I can make only " +coffee+" cup(s) of coffee");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+
+
+  learner_created: false
+feedback_link: https://hyperskill.org/projects/33/stages/176/implement
+status: Solved
+record: 2
